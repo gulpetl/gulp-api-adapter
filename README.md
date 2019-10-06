@@ -1,30 +1,20 @@
-# gulp-rest #
+# gulp-api-adapter #
 
-*(this plugin is being developed from *[gulp-etl-target-csv](https://github.com/gulpetl/gulp-etl-target-csv/)*. The original readme from gulp-etl-target-csv is below)*
+This plugin allows gulp tasks to interact with REST APIs or other http/https endpoints. It provides a .src() function which replaces gulp.src(), allowing remote files to be downloaded as the starting point for a gulp task. There is also a .dest() function, which allows files in a gulp stream to be uploaded.
 
-This plugin creates CSV files from **gulp-etl** **Message Stream** files; originally adapted from the [gulp-etl-handlelines](https://github.com/gulpetl/gulp-etl-handlelines) model plugin. It is a **gulp-etl** wrapper for [csv-stringify](https://csv.js.org/stringify/).
+Finally, there is a .transform() function, which treats the remote URL as a function which transforms the existing file (which is uploaded as the body of an HTTP request) into the returned file (the body of the response).
 
-This is a **[gulp-etl](https://gulpetl.com/)** plugin, and as such it is a [gulp](https://gulpjs.com/) plugin. **gulp-etl** plugins work with [ndjson](http://ndjson.org/) data streams/files which we call **Message Streams** and which are compliant with the [Singer specification](https://github.com/singer-io/getting-started/blob/master/docs/SPEC.md#output). Message Streams look like this:
-
-``` ndjson
-{"type": "SCHEMA", "stream": "users", "key_properties": ["id"], "schema": {"required": ["id"], "type": "object", "properties": {"id": {"type": "integer"}}}}
-{"type": "RECORD", "stream": "users", "record": {"id": 1, "name": "Chris"}}
-{"type": "RECORD", "stream": "users", "record": {"id": 2, "name": "Mike"}}
-{"type": "SCHEMA", "stream": "locations", "key_properties": ["id"], "schema": {"required": ["id"], "type": "object", "properties": {"id": {"type": "integer"}}}}
-{"type": "RECORD", "stream": "locations", "record": {"id": 1, "name": "Philadelphia"}}
-{"type": "STATE", "value": {"users": 2, "locations": 1}}
-```
+This plugin is a gulp wrapper for [request](https://www.npmjs.com/package/request).
 
 ## Usage ##
 
-**gulp-etl** plugins accept a configObj as the first parameter; the configObj
-will contain any info the plugin needs. For this plugin the configObj is the "Options" object for [csv-stringify](https://csv.js.org/stringify/), described [here](https://csv.js.org/stringify/options/). *Note: `header` property is defaulted to true by this plugin.*
+The plugin accepts a configObj as the first parameter; the configObj
+will contain any info the plugin needs. The configObj is the "Options" object for [request](https://www.npmjs.com/package/request), described [here](https://www.npmjs.com/package/request#requestoptions-callback).
 
 ### Sample gulpfile.js ###
 
 ``` javascript
 var gulp = require('gulp')
-var rename = require('gulp-rename')
 var targetCsv = require('gulp-etl-target-csv').targetCsv
 
 exports.default = function() {
@@ -33,7 +23,6 @@ exports.default = function() {
         console.log('Starting processing on ' + file.basename)
     })  
     .pipe(targetCsv({header:true}))
-    .pipe(rename({ extname: ".csv" })) // rename to *.csv
     .on('data', function (file) {
         console.log('Done processing on ' + file.basename)
     })  

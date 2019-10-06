@@ -1,8 +1,8 @@
 {
-  "name": "gulp-rest",
+  "name": "gulp-api-adapter",
   "version": "0.0.0",
-  "repository": "https://github.com/gulpetl/gulp-rest",
-  "description": "Upload/download gulp files to/from REST APIs (or any other http/https endpoints)",
+  "repository": "https://github.com/gulpetl/gulp-api-adapter",
+  "description": "Upload/download files to/from REST APIs (or any other http/https endpoints)",
   "main": "dist/js/plugin.js",
   "typings": "dist/types/plugin.d.ts",
   "files": [
@@ -23,17 +23,22 @@
   ],
   "homepage": "https://gulpetl.com",
   "dependencies": {
+    "@types/request": "^2.48.3",
+    "@types/vinyl-source-stream": "0.0.30",
     "csv-stringify": "^5.3.3",
+    "from2": "^2.3.0",
     "gulp-error-handle": "^1.0.1",
+    "gulp-rename": "^1.4.0",
     "loglevel": "^1.6.4",
     "pkginfo": "^0.4.1",
     "plugin-error": "^1.0.1",
-    "replace-ext": "^1.0.0",
-    "split2": "^3.1.1",
+    "request": "^2.88.0",
     "through2": "^3.0.1",
     "vinyl": "^2.2.0"
   },
   "devDependencies": {
+    "@types/from2": "^2.3.0",
+    "@types/gulp-rename": "0.0.33",
     "@types/jest": "^23.3.14",
     "@types/node": "^10.14.20",
     "@types/replace-ext": "0.0.27",

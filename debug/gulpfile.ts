@@ -1,5 +1,5 @@
 let gulp = require('gulp')
-import {targetCsv} from '../src/plugin'
+import { transform } from '../src/plugin'
 
 import * as loglevel from 'loglevel'
 const log = loglevel.getLogger('gulpfile')
@@ -26,7 +26,7 @@ function switchToBuffer(callback: any) {
 function runtargetCsv(callback: any) {
   log.info('gulp task starting for ' + PLUGIN_NAME)
 
-  return gulp.src('../testdata/*.ndjson',{buffer:gulpBufferMode})
+  return gulp.src('../testdata/*.json',{buffer:gulpBufferMode})
     .pipe(errorHandler(function(err:any) {
       log.error('Error: ' + err)
       callback(err)
@@ -34,7 +34,7 @@ function runtargetCsv(callback: any) {
     .on('data', function (file:Vinyl) {
       log.info('Starting processing on ' + file.basename)
     })    
-    .pipe(targetCsv({quoted_string:true}))
+    .pipe(transform({url:"https://ptsv2.com/t/i5xod-1570310396/post", method:"post", headers:{"Content-type": "application/json", 'Accept': 'application/json, text/plain, */*'}}))
     .pipe(gulp.dest('../testdata/processed'))
     .on('data', function (file:Vinyl) {
       log.info('Finished processing on ' + file.basename)

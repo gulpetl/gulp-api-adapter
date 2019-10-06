@@ -1,1 +1,1 @@
-export declare function targetCsv(configObj: any): any;
+export declare function transform(configObj: any): any;
