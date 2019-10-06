@@ -9,6 +9,7 @@ const loglevel = require("loglevel");
 const log = loglevel.getLogger(PLUGIN_NAME); // get a logger instance based on the project name
 log.setLevel((process.env.DEBUG_LEVEL || 'warn'));
 const request = require("request");
+const path = require("path");
 /* This is a gulp plugin. It is compliant with best practices for Gulp plugins (see
 https://github.com/gulpjs/gulp/blob/master/docs/writing-a-plugin/guidelines.md#what-does-a-good-plugin-look-like ) */
 function transform(configObj) {
@@ -21,6 +22,11 @@ function transform(configObj) {
     const strm = through2.obj(function (file, encoding, cb) {
         const self = this;
         let returnErr = null;
+        let newFileName = "";
+        if (file.basename) {
+            let base = path.basename(file.basename, path.extname(file.basename));
+            newFileName = base + '.response' + path.extname(file.basename);
+        }
         if (file.isNull() || returnErr) {
             // return empty file
             return cb(returnErr, file);
@@ -31,21 +37,10 @@ function transform(configObj) {
             return cb(returnErr, file);
         }
         else if (file.isStream()) {
-            // pipe file.contents through request
-            //      file.contents
-            //.pipe(request(configObj))      
-            // .pipe(request.post("https://postman-echo.com/post"))      
-            // .pipe(source(file.name))
-            // request.post({
-            //   url:"https://postman-echo.com/post",
-            //   // body:file.contents
-            //   body:fs.createReadStream('../testdata/testbody.json')
-            // })
-            // file.contents
-            //   .pipe(request.post("https://ptsv2.com/t/i5xod-1570310396/post"))    // works
-            // fs.createReadStream('../testdata/testbody.json')
-            //   .pipe(request.post("https://ptsv2.com/t/i5xod-1570310396/post")) // works
-            let newFile = new Vinyl();
+            let newStream = through2.obj(function (file, encoding, cb) {
+                cb(null, file);
+            });
+            let newFile = new Vinyl({ path: newFileName, contents: newStream });
             file.contents
                 .pipe(request(configObj))
                 .on('response', function (response) {
@@ -54,6 +49,7 @@ function transform(configObj) {
                 log.debug(response.headers['content-type']); // 'image/png'
                 // log.debug(JSON.stringify(response.toJSON()))
             })
+                .pipe(newStream)
                 .on('end', function () {
                 // DON'T CALL THIS HERE. It MAY work, if the job is small enough. But it needs to be called after the stream is SET UP, not when the streaming is DONE.
                 // Calling the callback here instead of below may result in data hanging in the stream--not sure of the technical term, but dest() creates no file, or the file is blank
@@ -61,22 +57,24 @@ function transform(configObj) {
                 // log.debug('calling callback')    
                 log.debug(PLUGIN_NAME + ' is done');
             })
-                // .on('data', function (data:any, err: any) {
-                //   log.debug(data)
-                // })
                 .on('error', function (err) {
                 log.error(err);
                 self.emit('error', new PluginError(PLUGIN_NAME, err));
             });
+            // In this order, both files are written correctly by dest();
+            this.push(file);
+            this.push(newFile);
+            // in THIS order newFile is still written correctly, and file
+            // is written but is blank. If either line is commented 
+            // out, the other line writes correctly
+            // this.push(newFile)
+            // this.push(file)
             // after our stream is set up (not necesarily finished) we call the callback
             log.debug('calling callback');
-            cb(returnErr, file);
+            cb(returnErr);
         }
     });
     return strm;
-    // .pipe(rename({
-    //   suffix: ".response"
-    // }))
 }
 exports.transform = transform;
 //# sourceMappingURL=plugin.js.map

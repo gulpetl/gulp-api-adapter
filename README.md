@@ -11,7 +11,7 @@ This plugin is a gulp wrapper for [request](https://www.npmjs.com/package/reques
 The plugin accepts a configObj as the first parameter; the configObj
 will contain any info the plugin needs. The configObj is the "Options" object for [request](https://www.npmjs.com/package/request), described [here](https://www.npmjs.com/package/request#requestoptions-callback).
 
-### Sample gulpfile.js ###
+### Sample gulpfile.js (OUTDATED: update coming soon) ###
 
 ``` javascript
 var gulp = require('gulp')
