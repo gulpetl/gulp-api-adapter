@@ -19,7 +19,7 @@
             "env": {"DEBUG_LEVEL":"info"}
         },
         {        
-            "name": "GulpTester Debug",
+            "name": "GulpTester Debug request",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
@@ -33,12 +33,12 @@
             "env": {"DEBUG_LEVEL":"debug"}
         },
         {        
-            "name": "GulpTester Debug - Buffer Mode",
+            "name": "GulpTester Debug src",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
             "stopOnEntry": false,
-            "args": ["--gulpfile", "./debug/gulpfile.ts", "runtargetCsvBuffer"],
+            "args": ["--gulpfile", "./debug/gulpfile.ts", "runApiSrc"],
             "cwd": "${workspaceRoot}",
             "runtimeArgs": [
                 "--nolazy", "-r", "ts-node/register"
@@ -46,29 +46,19 @@
             "console": "internalConsole",
             "env": {"DEBUG_LEVEL":"debug"}
         },
-        {
-            "name": "csvStringifyWithoutGulp",
+        {        
+            "name": "GulpTester Debug request - Buffer Mode",
             "type": "node",
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
             "stopOnEntry": false,
-            "args": ["--gulpfile", "./debug/gulpfile.ts", "csvStringifyWithoutGulp"],
+            "args": ["--gulpfile", "./debug/gulpfile.ts", "runApiRequestBuffer"],
             "cwd": "${workspaceRoot}",
             "runtimeArgs": [
                 "--nolazy", "-r", "ts-node/register"
             ],
             "console": "internalConsole",
-            "env": {"DEBUG_LEVEL":"info"}
-        },
-        {
-            "name": "aws-doParse: debug TS w/o transpile using ts-node",
-            "type": "node",
-            "request": "launch",
-            "args": ["src/aws/dev-handler.ts"],
-            "runtimeArgs": ["-r", "ts-node/register"],
-            "cwd": "${workspaceRoot}",
-            "protocol": "inspector",
-            "internalConsoleOptions": "openOnSessionStart",
-        },
+            "env": {"DEBUG_LEVEL":"debug"}
+        }
     ]
 }

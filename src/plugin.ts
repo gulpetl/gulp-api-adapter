@@ -1,17 +1,67 @@
 const through2 = require('through2')
 import Vinyl = require('vinyl')
-import PluginError = require('plugin-error');
-const pkginfo = require('pkginfo')(module); // project package.json info into module.exports
-const PLUGIN_NAME = module.exports.name;
+import PluginError = require('plugin-error')
+const pkginfo = require('pkginfo')(module) // project package.json info into module.exports
+const PLUGIN_NAME = module.exports.name
 import * as loglevel from 'loglevel'
 const log = loglevel.getLogger(PLUGIN_NAME) // get a logger instance based on the project name
 log.setLevel((process.env.DEBUG_LEVEL || 'warn') as loglevel.LogLevelDesc)
 import * as request from 'request'
-import * as path from 'path';
+import * as path from 'path'
+const from2 = require('from2')
+import { parse as urlParse } from 'url'
+import * as fs from 'fs';
 
 /* This is a gulp plugin. It is compliant with best practices for Gulp plugins (see
 https://github.com/gulpjs/gulp/blob/master/docs/writing-a-plugin/guidelines.md#what-does-a-good-plugin-look-like ) */
-export function transform(configObj: any) {
+
+export function src(this: any, url:string, options: any) {
+  let result
+  try {
+    let fileName : string = urlParse(url).pathname || "apiResult.dat"
+    fileName = path.basename(fileName)
+
+    let vinylFile:Vinyl
+    // create a file wrapper that will pretend to gulp that it came from the path represented by pretendFilePath
+    vinylFile = new Vinyl({
+      base: path.dirname(fileName),    
+      path:fileName
+      // contents:
+      // we'll set the contents below, for clarity
+    });
+
+    // from2 returns a writable stream; we put the vinyl file into the stream. This is the core of gulp: Vinyl files
+    // inside streams
+    result = from2.obj([vinylFile])
+
+    //
+    // Now we set the contents of our vinyl file. For now we're using streams; we'll add buffer support later
+    // We want to set our content to the stream produced by the request module:
+    //
+
+    // this doesn't work; request doesn't produce a stream when called this way. It doesn't have a .stream() function either...
+    // vinylFile.contents = request(url) as any 
+
+    // this works: set contents to a passthrough stream, and pipe the result of the request file through that passthrough stream
+    // vinylFile.contents = through2.obj() // passthrough stream 
+    // request(url).pipe(vinylFile.contents as unknown as any)
+
+    // this works: same idea as above, but a cleaner
+    vinylFile.contents = request(url).pipe(through2.obj())
+  } 
+  catch (err) {
+    // emitting here causes some other error: TypeError: Cannot read property 'pipe' of undefined
+    // result.emit(new PluginError(PLUGIN_NAME, err))
+    
+    // For now, bubble error up to calling function
+    throw new PluginError(PLUGIN_NAME, err)
+  }
+
+  return result
+}
+
+export {requestFunc as request}; // desired name "request" interferes with standard import name for request library
+function requestFunc(configObj: any) {
   if (!configObj) configObj = {}
   // override configObj defaults here, if needed
   // if (configObj.header === undefined) configObj.header = true
@@ -28,22 +78,32 @@ export function transform(configObj: any) {
       newFileName = base + '.response' + path.extname(file.basename)
     }
 
+    let responseFile = new Vinyl({path: newFileName})
+
     if (file.isNull() || returnErr) {
       // return empty file
       return cb(returnErr, file)
     }
     else if (file.isBuffer()) {      
-      returnErr = new PluginError(PLUGIN_NAME, 'Buffer mode is not yet supported. Use gulp.src({buffer:false})...');
+      // returnErr = new PluginError(PLUGIN_NAME, 'Buffer mode is not yet supported. Use gulp.src({buffer:false})...');
 
-      // return unchanged file
-      return cb(returnErr, file)      
+      request.post(configObj, function(err:any, resp: any, body:any) {
+        if (typeof body === "string") {
+          responseFile.contents = Buffer.from(body);
+        }
+        else 
+          responseFile.contents = body;
+
+        self.push(file)
+        self.push(responseFile)
+
+        return cb(returnErr)      
+      })
     }
     else if (file.isStream()) {
-      let newStream = through2.obj(function (this: any, file: Vinyl, encoding: string, cb: Function) {
-        cb(null, file)
-      })
+      let responseStream = through2.obj() // passthrough stream 
 
-      let newFile = new Vinyl({path: newFileName, contents:newStream})
+      responseFile.contents = responseStream;
 
       file.contents
         .pipe(request(configObj))
@@ -53,7 +113,7 @@ export function transform(configObj: any) {
           log.debug(response.headers['content-type']) // 'image/png'
           // log.debug(JSON.stringify(response.toJSON()))
         })
-        .pipe(newStream)
+        .pipe(responseStream)
         .on('end', function () {
           // DON'T CALL THIS HERE. It MAY work, if the job is small enough. But it needs to be called after the stream is SET UP, not when the streaming is DONE.
           // Calling the callback here instead of below may result in data hanging in the stream--not sure of the technical term, but dest() creates no file, or the file is blank
@@ -68,8 +128,8 @@ export function transform(configObj: any) {
         })
 
       // In this order, both files are written correctly by dest();
-      this.push(file)
-      this.push(newFile)
+      self.push(file)
+      self.push(responseFile)
 
       // in THIS order newFile is still written correctly, and file
       // is written but is blank. If either line is commented 

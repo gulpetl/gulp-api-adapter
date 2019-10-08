@@ -2,7 +2,7 @@
 
 This plugin allows gulp tasks to interact with REST APIs or other http/https endpoints. It provides a .src() function which replaces gulp.src(), allowing remote files to be downloaded as the starting point for a gulp task. There is also a .dest() function, which allows files in a gulp stream to be uploaded.
 
-Finally, there is a .transform() function, which treats the remote URL as a function which transforms the existing file (which is uploaded as the body of an HTTP request) into the returned file (the body of the response).
+Finally, there is a .request() function, which passes each file as the body of an HTTP request and returns the response as a separate file.
 
 This plugin is a gulp wrapper for [request](https://www.npmjs.com/package/request).
 
