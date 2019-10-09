@@ -73,6 +73,7 @@ function requestFunc(configObj) {
         }
         else if (file.isBuffer()) {
             // returnErr = new PluginError(PLUGIN_NAME, 'Buffer mode is not yet supported. Use gulp.src({buffer:false})...');
+            configObj.body = file.contents;
             request.post(configObj, function (err, resp, body) {
                 if (typeof body === "string") {
                     responseFile.contents = Buffer.from(body);
