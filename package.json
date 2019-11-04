@@ -1,6 +1,6 @@
 {
   "name": "gulp-api-adapter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "repository": "https://github.com/gulpetl/gulp-api-adapter",
   "description": "Upload/download files to/from REST APIs (or any other http/https endpoints)",
   "main": "dist/js/plugin.js",
