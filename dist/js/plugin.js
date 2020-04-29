@@ -40,7 +40,9 @@ function src(url, options) {
         // vinylFile.contents = through2.obj() // passthrough stream 
         // request(url).pipe(vinylFile.contents as unknown as any)
         // this works: same idea as above, but a cleaner
-        vinylFile.contents = request(url).pipe(through2.obj());
+        // make a copy of configObj specific to this file, adding url and leaving original unchanged
+        let optionsCopy = Object.assign({}, options, { "url": url });
+        vinylFile.contents = request(optionsCopy).pipe(through2.obj());
     }
     catch (err) {
         // emitting here causes some other error: TypeError: Cannot read property 'pipe' of undefined
@@ -62,6 +64,8 @@ function requestFunc(configObj) {
         const self = this;
         let returnErr = null;
         let newFileName = "";
+        // make a copy of configObj specific to this file, allowing gulp-data to override any shared settings and leaving original unchanged
+        let config = Object.assign({}, configObj, file.data);
         if (file.basename) {
             let base = path.basename(file.basename, path.extname(file.basename));
             newFileName = base + '.response' + path.extname(file.basename);
@@ -73,8 +77,8 @@ function requestFunc(configObj) {
         }
         else if (file.isBuffer()) {
             // returnErr = new PluginError(PLUGIN_NAME, 'Buffer mode is not yet supported. Use gulp.src({buffer:false})...');
-            configObj.body = file.contents;
-            request.post(configObj, function (err, resp, body) {
+            config.body = file.contents;
+            request.post(config, function (err, resp, body) {
                 if (typeof body === "string") {
                     responseFile.contents = Buffer.from(body);
                 }
@@ -89,7 +93,7 @@ function requestFunc(configObj) {
             let responseStream = through2.obj(); // passthrough stream 
             responseFile.contents = responseStream;
             file.contents
-                .pipe(request(configObj))
+                .pipe(request(config))
                 .on('response', function (response) {
                 // testing
                 log.debug(response.statusCode); // 200
