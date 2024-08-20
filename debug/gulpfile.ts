@@ -13,7 +13,7 @@ const errorHandler = require('gulp-error-handle'); // handle all errors in one h
 const pkginfo = require('pkginfo')(module); // project package.json info into module.exports
 const PLUGIN_NAME = module.exports.name;
 
-import Vinyl = require('vinyl') 
+import * as Vinyl from 'vinyl';
 
 let gulpBufferMode = false;
 
@@ -27,14 +27,14 @@ export function runApiRequest(callback: any) {
   log.info('gulp task starting for ' + PLUGIN_NAME)
 
   return gulp.src('../testdata/*.json',{buffer:gulpBufferMode})
-    .pipe(errorHandler(function(err:any) {
-      log.error('Error: ' + err)
-      callback(err)
-    }))
+    // .pipe(errorHandler(function(err:any) {
+    //   log.error('Error: ' + err)
+    //   callback(err)
+    // }))
     .on('data', function (file:Vinyl) {
       log.info('Starting processing on ' + file.basename)
     })    
-    .pipe(apiAdapter.request({url:"http://localhost:2019/data/saveChanges", method:"post", headers:{"Content-type": "application/json", 'Accept': 'application/json, text/plain, */*'}}))
+    // .pipe(apiAdapter.request({url:"http://localhost:2019/data/saveChanges", method:"post", headers:{"Content-type": "application/json", 'Accept': 'application/json, text/plain, */*'}}))
     .pipe(gulp.dest('../testdata/processed'))
     .on('data', function (file:Vinyl) {
       log.info('Finished processing on ' + file.basename)
@@ -51,10 +51,10 @@ function runApiSrc(callback: any) {
 
   try {
     return apiAdapter.src("https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png", {buffer:gulpBufferMode})
-      .pipe(errorHandler(function(err:any) {
-        log.error('Error: ' + err)
-        callback(err)
-      }))
+      // .pipe(errorHandler(function(err:any) {
+      //   log.error('Error: ' + err)
+      //   callback(err)
+      // }))
       .on('data', function (file:Vinyl) {
         log.info('Starting processing on ' + file.basename)
       }) 

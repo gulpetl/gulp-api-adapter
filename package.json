@@ -10,9 +10,9 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prebuild": "npm run clean",
-    "clean": "rimraf dist/*",
-    "test": "jest",
+    "prebuild": "rimraf dist/* --glob",
+    "clean": "rimraf dist/* --glob",
+    "test": "vitest",
     "bump": "npm version patch && git push --tags origin master"
   },
   "author": "peterl@sbcotton.com",
@@ -32,24 +32,22 @@
   "dependencies": {
     "from2": "^2.3.0",
     "gulp-error-handle": "^1.0.1",
-    "loglevel": "^1.6.8",
+    "loglevel": "^1.9.1",
     "pkginfo": "^0.4.1",
-    "plugin-error": "^1.0.1",
+    "plugin-error": "^2.0.1",
     "request": "^2.88.2",
-    "through2": "^3.0.1",
-    "vinyl": "^2.2.0"
+    "rimraf": "^6.0.1",
+    "through2": "^4.0.2",
+    "vinyl": "^3.0.0"
   },
   "devDependencies": {
-    "@types/from2": "^2.3.0",
-    "@types/jest": "^23.3.14",
-    "@types/node": "^10.17.21",
-    "@types/request": "^2.48.4",
-    "@types/vinyl": "^2.0.4",
+    "@types/from2": "^2.3.5",
+    "@types/node": "^18.19.45",
+    "@types/request": "^2.48.12",
+    "@types/vinyl": "^2.0.12",
     "gulp": "^4.0.2",
-    "jest": "^25.5.1",
-    "stream-transform": "^2.0.1",
-    "ts-jest": "^24.3.0",
-    "ts-node": "^7.0.1",
-    "typescript": "^3.8.3"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   }
 }

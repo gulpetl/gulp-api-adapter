@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.src = src;
+exports.request = requestFunc;
 const through2 = require('through2');
 const Vinyl = require("vinyl");
 const PluginError = require("plugin-error");
@@ -17,7 +19,7 @@ https://github.com/gulpjs/gulp/blob/master/docs/writing-a-plugin/guidelines.md#w
 function src(url, options) {
     let result;
     try {
-        let fileName = url_1.parse(url).pathname || "apiResult.dat";
+        let fileName = (0, url_1.parse)(url).pathname || "apiResult.dat";
         fileName = path.basename(fileName);
         let vinylFile;
         // create a file wrapper that will pretend to gulp that it came from the path represented by pretendFilePath
@@ -52,7 +54,6 @@ function src(url, options) {
     }
     return result;
 }
-exports.src = src;
 function requestFunc(configObj) {
     if (!configObj)
         configObj = {};
@@ -127,5 +128,4 @@ function requestFunc(configObj) {
     });
     return strm;
 }
-exports.request = requestFunc;
 //# sourceMappingURL=plugin.js.map

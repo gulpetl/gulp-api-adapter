@@ -53,7 +53,7 @@ export function src(this: any, url:string, options: any) {
     
     vinylFile.contents = request(optionsCopy).pipe(through2.obj());
   } 
-  catch (err) {
+  catch (err:any) {
     // emitting here causes some other error: TypeError: Cannot read property 'pipe' of undefined
     // result.emit(new PluginError(PLUGIN_NAME, err))
     
